@@ -1,0 +1,66 @@
+<?php
+
+/*
+Write a program that parses a sentence and replaces each word with the following: 
+1) The first letter of the word
+2) The number of distinct characters between first and last character
+3) The last letter of the word. 
+For example, Smooth would become S3h. 
+Words are separated by spaces or non-alphabetic characters and these separators should be maintained in their original form and location in the answer. 
+A few of the things we will be looking at is accuracy, efficiency, solution completeness. 
+
+Output expected: C6y is t4g-up n1w t4s. I6n is d3g n1w t4s!
+*/
+
+function wordParser($text)
+{
+    // We define the main variables of the word
+    $cleanText          = preg_replace('/[^a-z0-9]/i', ' ', $text);
+    $wordsClean         = array_filter(explode(' ', $cleanText));
+    $arrayUniqueChar    = [];
+
+    // We extract the data of the word
+    foreach ($wordsClean as $word) {
+      
+        // We only check the words with more than 2 characters
+        if (strlen($word) > 2) {
+            $shortWord = trim(substr($word, 1, -1));
+            $uniqueChar = count(array_unique(str_split($shortWord)));
+            array_push($arrayUniqueChar, $uniqueChar);
+        }
+    }
+
+    $arrayText    = str_split($text, 1);
+    $arrayLetters = [];
+    $key          = 0;
+    $counter      = 0;
+    // We build another array with the final result
+    foreach ($arrayText as $k => $letter) {
+        if (!preg_match('/[^a-z0-9]/i', $letter) || $letter == "") {
+            $counter++;
+            if (!isset($arrayText[$k - 1]) || preg_match('/[^a-z0-9]/i', $arrayText[$k - 1])) {
+                array_push($arrayLetters, $letter); // Is the first element
+            }
+            if ($arrayText[$k + 1] == "" || preg_match('/[^a-z0-9]/i', $arrayText[$k + 1])) {
+                if ($counter > 2) {
+                    array_push($arrayLetters, $arrayUniqueChar[$key]);
+                }
+                array_push($arrayLetters, $letter); // Is the last element
+            }
+        } else {
+            array_push($arrayLetters, $letter);
+            if ($counter > 2) {
+                $key++;
+            }
+            $counter = 0;
+        }
+    }
+
+    $output = implode("", $arrayLetters);
+
+    return $output;
+    // return "C6y is t4g-up n1w t4s. I6n is d3g n1w t4s!"
+}
+
+$output = wordParser("Creativity is thinking-up new things. Innovation is doing new things!");
+echo $output;
